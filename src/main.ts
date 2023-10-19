@@ -6,6 +6,8 @@ const start = async () => {
   try {
     const app = await NestFactory.create(AppModule);
 
+    app.enableCors({origin: "*", credentials: true})
+
     const swaggerConfig = new DocumentBuilder()
       .addBearerAuth()
       .setTitle('EDU-erp')
