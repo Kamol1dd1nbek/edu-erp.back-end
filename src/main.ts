@@ -1,12 +1,15 @@
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 const start = async () => {
   try {
     const app = await NestFactory.create(AppModule);
 
-    app.enableCors({origin: "*", credentials: true})
+    app.enableCors({ origin: '*', credentials: true });
+    app.useGlobalPipes(new ValidationPipe());
+    app.setGlobalPrefix('api');
 
     const swaggerConfig = new DocumentBuilder()
       .addBearerAuth()
