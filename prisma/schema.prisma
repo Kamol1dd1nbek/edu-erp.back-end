@@ -6,3 +6,164 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id                   Int     @id @default(autoincrement())
+  role                 String
+  first_name           String
+  last_name            String
+  hashed_password      String
+  username             String  @unique
+  hashed_refresh_token String?
+  status               Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  attendances Attendance[]
+  groups      StudentGroup[]
+  finances    Finance[]
+  videos      Video[]
+
+  @@map("users")
+}
+
+model Room {
+  id       Int    @id @default(autoincrement())
+  name     String @unique
+  capacity Int
+
+  bookings Booking[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("rooms")
+}
+
+model Finance {
+  id         Int       @id @default(autoincrement())
+  student_id Int?
+  dead_line  DateTime?
+  amount     Int
+  status_id  Int       @default(1)
+  paid       Int       @default(0)
+  residue    Int       @default(0)
+
+  createdAt DateTime @default(now())
+
+  student User?          @relation(fields: [student_id], references: [id])
+  status  FinanceStatus? @relation(fields: [status_id], references: [id])
+
+  @@map("finance")
+}
+
+model FinanceStatus {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String?
+
+  finance Finance[]
+
+  @@map("finance_statuses")
+}
+
+model Course {
+  id            Int    @id @default(autoincrement())
+  name          String
+  price         Int
+  lessons_count Int
+
+  groups Group[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("courses")
+}
+
+model TeacherLessons {
+  id         Int  @id @default(autoincrement())
+  teacher_id Int?
+  lesson_id  Int?
+
+  @@map("teacher_lessons")
+}
+
+model Lesson {
+  id       Int      @id @default(autoincrement())
+  title    String?
+  date     DateTime
+  group_id Int?
+
+  group Group? @relation(fields: [group_id], references: [id])
+
+  attendances Attendance[]
+  bookings    Booking[]
+
+  createdAt DateTime @default(now())
+
+  @@map("lessons")
+}
+
+model Group {
+  id         Int       @id @default(autoincrement())
+  name       String
+  status     Boolean   @default(false)
+  course_id  Int?
+  capacity   Int
+  start_date DateTime?
+
+  course   Course?        @relation(fields: [course_id], references: [id])
+  lessons  Lesson[]
+  students StudentGroup[]
+
+  @@map("groups")
+}
+
+model StudentGroup {
+  id         Int  @id @default(autoincrement())
+  student_id Int?
+  group_id   Int?
+
+  student User?  @relation(fields: [student_id], references: [id])
+  group   Group? @relation(fields: [group_id], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@map("student_group")
+}
+
+model Video {
+  id         Int    @id @default(autoincrement())
+  teacher_id Int?
+  content    String
+
+  teacher User? @relation(fields: [teacher_id], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@map("videos")
+}
+
+model Attendance {
+  id         Int  @id @default(autoincrement())
+  student_id Int?
+  lesson_id  Int?
+
+  student User?   @relation(fields: [student_id], references: [id])
+  lesson  Lesson? @relation(fields: [lesson_id], references: [id])
+}
+
+model Booking {
+  id         Int       @id @default(autoincrement())
+  start_time DateTime
+  end_time   DateTime?
+  room_id    Int?
+  lesson_id  Int?
+
+  room   Room?   @relation(fields: [room_id], references: [id])
+  lesson Lesson? @relation(fields: [lesson_id], references: [id])
+
+  @@map("bookings")
+}
