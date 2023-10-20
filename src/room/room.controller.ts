@@ -24,25 +24,25 @@ export class RoomController {
 
   @ApiOperation({ summary: '| Get all rooms' })
   @Get()
-  findAll() {
-    return this.roomService.findAll();
+  findAllRooms() {
+    return this.roomService.findAllRooms();
   }
 
   @ApiOperation({ summary: '| Get one room' })
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.roomService.findOne(+id);
+  findOneRoomById(@Param('id') id: string) {
+    return this.roomService.findOneRoomById(+id);
   }
 
   @ApiOperation({ summary: '| Update room' })
   @Put(':id')
   update(@Param('id') id: string, @Body() updateRoomDto: UpdateRoomDto) {
-    return this.roomService.update(+id, updateRoomDto);
+    return this.roomService.updateRoom(+id, updateRoomDto);
   }
 
   @ApiOperation({ summary: '| Delete room' })
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.roomService.remove(+id);
+    return this.roomService.removeRoom(+id);
   }
 }
