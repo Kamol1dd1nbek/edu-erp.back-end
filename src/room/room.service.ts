@@ -7,18 +7,19 @@ import { Room } from '@prisma/client';
 export class RoomService {
   constructor(private readonly prisma: PrismaService) {}
 
+  // ------------------------- Create Room ------------------------- //
   async createRoom(createRoomDto: CreateRoomDto): Promise<Room> {
+    let conflict = await this.prisma.room.findUnique({
+      where: {
+        name: createRoomDto.name,
+      },
+    });
+    if (conflict)
+      throw new HttpException(
+        `This room named ${createRoomDto.name} has already been created`,
+        HttpStatus.BAD_REQUEST,
+      );
     try {
-      const conflict = await this.prisma.room.findUnique({
-        where: {
-          name: createRoomDto.name,
-        },
-      });
-      if (conflict)
-        throw new HttpException(
-          `This room named ${createRoomDto.name} has already been created`,
-          HttpStatus.BAD_REQUEST,
-        );
       const newRoom = await this.prisma.room.create({
         data: createRoomDto,
       });
@@ -28,6 +29,7 @@ export class RoomService {
     }
   }
 
+  // ------------------------- Find All Rooms ------------------------- //
   async findAllRooms(): Promise<Room[]> {
     try {
       const allRooms = await this.prisma.room.findMany();
@@ -37,6 +39,7 @@ export class RoomService {
     }
   }
 
+  // ------------------------- Find by Id Room ------------------------- //
   async findOneRoomById(id: number): Promise<Room> {
     let wantedRoom: Room;
     try {
@@ -56,6 +59,7 @@ export class RoomService {
     return wantedRoom;
   }
 
+  // ------------------------- Update Room ------------------------- //
   async updateRoom(id: number, updateRoomDto: UpdateRoomDto): Promise<Room> {
     let updatedRoom: Room;
     try {
@@ -72,6 +76,7 @@ export class RoomService {
     return updatedRoom;
   }
 
+  // ------------------------- Remove Room ------------------------- //
   async removeRoom(id: number): Promise<Room> {
     let removedRoom: Room;
     try {
