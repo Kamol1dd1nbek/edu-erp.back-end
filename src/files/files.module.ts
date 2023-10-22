@@ -3,6 +3,6 @@ import { FilesService } from './files.service';
 
 @Module({
   providers: [FilesService],
-  exports: [],
+  exports: [FilesService],
 })
 export class FilesModule {}
