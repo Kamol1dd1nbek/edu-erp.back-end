@@ -35,7 +35,7 @@ export class RoleService {
     }
   }
 
-  // ------------------------- Find All Role ------------------------- //
+  // ------------------------- Find All Roles ------------------------- //
   async findAllRoles(): Promise<Role[]> {
     try {
       const allRolees = await this.prisma.role.findMany({});

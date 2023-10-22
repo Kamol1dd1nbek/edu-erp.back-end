@@ -14,6 +14,7 @@ model User {
   first_name           String
   last_name            String
   hashed_password      String
+  avatar               String?  @default("user-avatar-icon-symbol.jpg")
   username             String  @unique
   hashed_refresh_token String?
   status               Boolean @default(true)
