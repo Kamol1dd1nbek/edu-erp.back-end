@@ -1,10 +1,11 @@
 -- CreateTable
 CREATE TABLE "users" (
     "id" SERIAL NOT NULL,
-    "role" TEXT NOT NULL,
+    "role_id" INTEGER,
     "first_name" TEXT NOT NULL,
     "last_name" TEXT NOT NULL,
     "hashed_password" TEXT NOT NULL,
+    "avatar" TEXT DEFAULT 'user-avatar-icon-symbol.jpg',
     "username" TEXT NOT NULL,
     "hashed_refresh_token" TEXT,
     "status" BOOLEAN NOT NULL DEFAULT true,
@@ -12,6 +13,17 @@ CREATE TABLE "users" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "roles" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "description" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "roles_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -84,10 +96,12 @@ CREATE TABLE "lessons" (
 CREATE TABLE "groups" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
-    "status" BOOLEAN NOT NULL DEFAULT false,
+    "status" BOOLEAN DEFAULT false,
     "course_id" INTEGER,
     "capacity" INTEGER NOT NULL,
-    "start_date" TIMESTAMP(3),
+    "start_date" TEXT NOT NULL,
+    "continuity" INTEGER,
+    "days" INTEGER[],
 
     CONSTRAINT "groups_pkey" PRIMARY KEY ("id")
 );
@@ -97,7 +111,7 @@ CREATE TABLE "student_group" (
     "id" SERIAL NOT NULL,
     "student_id" INTEGER,
     "group_id" INTEGER,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdAt" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "student_group_pkey" PRIMARY KEY ("id")
 );
@@ -137,6 +151,9 @@ CREATE UNIQUE INDEX "users_username_key" ON "users"("username");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "rooms_name_key" ON "rooms"("name");
+
+-- AddForeignKey
+ALTER TABLE "users" ADD CONSTRAINT "users_role_id_fkey" FOREIGN KEY ("role_id") REFERENCES "roles"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "finance" ADD CONSTRAINT "finance_student_id_fkey" FOREIGN KEY ("student_id") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;

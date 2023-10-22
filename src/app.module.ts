@@ -9,6 +9,7 @@ import { ConfigModule } from '@nestjs/config';
 import { Module } from '@nestjs/common';
 import { join } from 'path';
 import { FilesModule } from './files/files.module';
+import { GroupModule } from './group/group.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { FilesModule } from './files/files.module';
     RoleModule,
     UserModule,
     FilesModule,
+    GroupModule,
   ],
   controllers: [],
   providers: [],

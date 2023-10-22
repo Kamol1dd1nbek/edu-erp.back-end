@@ -124,10 +124,12 @@ model Lesson {
 model Group {
   id         Int       @id @default(autoincrement())
   name       String
-  status     Boolean   @default(false)
+  status     Boolean?   @default(false)
   course_id  Int?
   capacity   Int
-  start_date DateTime?
+  start_date String
+  continuity Int?
+  days Int[]
 
   course   Course?        @relation(fields: [course_id], references: [id])
   lessons  Lesson[]
@@ -144,7 +146,7 @@ model StudentGroup {
   student User?  @relation(fields: [student_id], references: [id])
   group   Group? @relation(fields: [group_id], references: [id])
 
-  createdAt DateTime @default(now())
+  createdAt DateTime? @default(now())
 
   @@map("student_group")
 }
