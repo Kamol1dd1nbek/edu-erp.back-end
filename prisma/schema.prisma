@@ -26,6 +26,7 @@ model User {
   groups      StudentGroup[]
   finances    Finance[]
   videos      Video[]
+  groups_tech TeacherGroup[]
 
   @@map("users")
 }
@@ -97,19 +98,23 @@ model Course {
   @@map("courses")
 }
 
-model TeacherLessons {
+model TeacherGroup {
   id         Int  @id @default(autoincrement())
   teacher_id Int?
-  lesson_id  Int?
+  group_id  Int?
+
+  teacher User? @relation(fields: [teacher_id], references: [id])
+  group Group? @relation(fields: [group_id], references: [id])
 
   @@map("teacher_lessons")
 }
 
 model Lesson {
   id       Int      @id @default(autoincrement())
-  title    String?
+  title    String?  @default("")
   date     DateTime
   group_id Int?
+  status Boolean? @default(true)
 
   group Group? @relation(fields: [group_id], references: [id])
 
@@ -134,6 +139,7 @@ model Group {
   course   Course?        @relation(fields: [course_id], references: [id])
   lessons  Lesson[]
   students StudentGroup[]
+  teacher TeacherGroup[]
 
   @@map("groups")
 }

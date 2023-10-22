@@ -10,6 +10,7 @@ import { Module } from '@nestjs/common';
 import { join } from 'path';
 import { FilesModule } from './files/files.module';
 import { GroupModule } from './group/group.module';
+import { LessonModule } from './lesson/lesson.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { GroupModule } from './group/group.module';
     UserModule,
     FilesModule,
     GroupModule,
+    LessonModule,
   ],
   controllers: [],
   providers: [],

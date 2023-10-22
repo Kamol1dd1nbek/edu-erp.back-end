@@ -2,10 +2,12 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { LessonService } from '../lesson/lesson.service';
 
 @Injectable()
 export class GroupService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService,
+    private readonly lossonService: LessonService) {}
 
   // ------------------------- Create Group ------------------------- //
   async createGroup(createGroupDto: CreateGroupDto) {
@@ -23,7 +25,11 @@ export class GroupService {
     try {
       const newGroup = await this.prisma.group.create({
         data: createGroupDto,
+        include: {
+          course: true
+        }
       });
+      await this.lossonService.createLessons(newGroup);
       return newGroup;
     } catch (error) {
       console.log(error);
