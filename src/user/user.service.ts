@@ -82,13 +82,13 @@ export class UserService {
   }
 
   // ------------------------- Find One User ------------------------- //
-  async findOne2(id: number) {
-    return `This action returns a #${id} user`;
-  }
+  // async findOne2(id: number) {
+  //   return `This action returns a #${id} user`;
+  // }
 
   // ------------------------- Update User ------------------------- //
   async updateUser(id: number, updateUserDto: UpdateUserDto) {
-    return 'updated';
+    // const 
   }
 
   // ------------------------- Delete User ------------------------- //
