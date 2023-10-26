@@ -11,12 +11,17 @@ import { join } from 'path';
 import { FilesModule } from './files/files.module';
 import { GroupModule } from './group/group.module';
 import { LessonModule } from './lesson/lesson.module';
+import { AuthModule } from './auth/auth.module';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'profiles'),
       serveRoot: '/api',
+    }),
+    JwtModule.register({
+      global: true,
     }),
     ConfigModule.forRoot({
       envFilePath: '.env',
@@ -31,6 +36,7 @@ import { LessonModule } from './lesson/lesson.module';
     FilesModule,
     GroupModule,
     LessonModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [],

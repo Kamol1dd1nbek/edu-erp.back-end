@@ -1,13 +1,12 @@
-import { Injectable } from '@nestjs/common';
-import { CreateLessonDto } from './dto/create-lesson.dto';
-import { UpdateLessonDto } from './dto/update-lesson.dto';
 import { PrismaService } from '../prisma/prisma.service';
-import { Group } from '@prisma/client';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { UpdateLessonDto } from './dto';
 
 @Injectable()
 export class LessonService {
   constructor(private readonly prisma: PrismaService) {}
 
+  // ------------------------- Create Lessons ------------------------- //
   async createLessons(groupData) {
     const { id, start_date, days, course } = groupData;
     const start = new Date(parseInt(start_date)); // 2023-10-24
@@ -25,25 +24,8 @@ export class LessonService {
     await this.prisma.lesson.createMany({
       data: lessons,
     });
-
-    //     let now = new Date("2023-10-18 8:00");  // start date
-    // const when = [1, 2, 3, 4, 5];           // when lesson
-    // const lessons = [];                     // dars jadvali
-    // const count = 5;                       // lessons count
-    // for (let i = 0; count >= lessons.length ; i++) {
-    //   // console.log(weak[now.getDay()]);
-    //   let day = now.getDay();
-    //   // console.log(weak[day])
-
-    //   if (when.includes(day)) {
-    //     lessons.push(new Date(now))
-    //     console.log(now)
-    //   }
-    //   now.setDate(now.getDate() + 1);
-    // }
-    // console.log(lessons)
   }
-  // notion.sa/Project-uchun-reja-122bafd34878461886de67a178fcda16
+
   // findAll() {
   //   return `This action returns all lesson`;
   // }
@@ -52,8 +34,137 @@ export class LessonService {
   //   return `This action returns a #${id} lesson`;
   // }
 
-  // update(id: number, updateLessonDto: UpdateLessonDto) {
-  //   return `This action updates a #${id} lesson`;
+  // ------------------------- Update Lesson ------------------------- //
+  async updateStatus(id: number, updateLessonDto: UpdateLessonDto) {
+    const { status, title } = updateLessonDto;
+    if (status == true || status == false) {
+      const lesson = await this.prisma.lesson.findFirst({
+        where: { id },
+      });
+      const group = await this.prisma.group.findFirst({
+        where: { id: lesson.group_id },
+      });
+      if (!lesson)
+        throw new HttpException(
+          `No lesson found with ID ${id}`,
+          HttpStatus.NOT_FOUND,
+        );
+
+      const allThisGroupLessons = await this.prisma.lesson.findMany({
+        where: {
+          group_id: lesson.group_id,
+        },
+        orderBy: [
+          {
+            id: 'desc',
+          },
+        ],
+      });
+      if (!status) {
+        await this.prisma.lesson.update({
+          where: { id },
+          data: { status },
+        });
+        const last_lesson = allThisGroupLessons[0];
+        const last_date = new Date(last_lesson.date);
+
+        while (true) {
+          last_date.setDate(last_date.getDate() + 1);
+          let day = last_date.getDay();
+          if (group.days.includes(day)) {
+            await this.prisma.lesson.create({
+              data: {
+                date: new Date(last_date),
+                group_id: group.id,
+              },
+            });
+            break;
+          }
+        }
+      } else {
+        const now = new Date();
+        const lesson_date = new Date(lesson.date);
+        console.log(now, lesson_date);
+        if (now >= lesson_date) {
+          throw new HttpException('Date ', HttpStatus.BAD_REQUEST);
+        }
+        if (!lesson.status) {
+          await this.prisma.lesson.update({
+            where: { id },
+            data: { status },
+          });
+          await this.prisma.lesson.delete({
+            where: { id: allThisGroupLessons[0].id },
+          });
+        }
+      }
+    }
+  }
+
+  // async updateTitle(id: number, updateLessonDto: UpdateLessonDto) {
+  //   const { status, title } = updateLessonDto;
+  //   if (status == true || status == false) {
+  //     const lesson = await this.prisma.lesson.findFirst({
+  //       where: { id },
+  //     });
+  //     const group = await this.prisma.group.findFirst({
+  //       where: { id: lesson.group_id },
+  //     });
+  //     if (!lesson)
+  //       throw new HttpException(
+  //         `No lesson found with ID ${id}`,
+  //         HttpStatus.NOT_FOUND,
+  //       );
+
+  //     const allThisGroupLessons = await this.prisma.lesson.findMany({
+  //       where: {
+  //         group_id: lesson.group_id,
+  //       },
+  //       orderBy: [
+  //         {
+  //           id: 'desc',
+  //         },
+  //       ],
+  //     });
+  //     if (!status) {
+  //       await this.prisma.lesson.update({
+  //         where: { id },
+  //         data: { status },
+  //       });
+  //       const last_lesson = allThisGroupLessons[0];
+  //       const last_date = new Date(last_lesson.date);
+
+  //       while (true) {
+  //         last_date.setDate(last_date.getDate() + 1);
+  //         let day = last_date.getDay();
+  //         if (group.days.includes(day)) {
+  //           await this.prisma.lesson.create({
+  //             data: {
+  //               date: new Date(last_date),
+  //               group_id: group.id,
+  //             },
+  //           });
+  //           break;
+  //         }
+  //       }
+  //     } else {
+  //       const now = new Date();
+  //       const lesson_date = new Date(lesson.date);
+  //       console.log(now, lesson_date);
+  //       if (now >= lesson_date) {
+  //         throw new HttpException('Date ', HttpStatus.BAD_REQUEST);
+  //       }
+  //       if (!lesson.status) {
+  //         await this.prisma.lesson.update({
+  //           where: { id },
+  //           data: { status },
+  //         });
+  //         await this.prisma.lesson.delete({
+  //           where: { id: allThisGroupLessons[0].id },
+  //         });
+  //       }
+  //     }
+  //   }
   // }
 
   // remove(id: number) {

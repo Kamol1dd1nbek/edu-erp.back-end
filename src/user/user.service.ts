@@ -28,10 +28,16 @@ export class UserService {
         `User with phone number ${createUserDto.username} already exists`,
         HttpStatus.CONFLICT,
       );
-    const hashed_password = await bcrypt.hash(
-      username,
-      parseInt(process.env.BCRYPT_SALT) || 8,
-    );
+    let hashed_password: string;
+    try {
+      hashed_password = await bcrypt.hash(username, 7);
+    } catch (error) {
+      console.log(
+        error.message,
+        ' path: user.service.ts -> createUser -> hashshed_password',
+      );
+      throw new HttpException('Something went wrong!', HttpStatus.BAD_REQUEST);
+    }
     try {
       const newUser = await this.prisma.user.create({
         data: {
@@ -88,7 +94,7 @@ export class UserService {
 
   // ------------------------- Update User ------------------------- //
   async updateUser(id: number, updateUserDto: UpdateUserDto) {
-    // const 
+    // const
   }
 
   // ------------------------- Delete User ------------------------- //
@@ -96,4 +102,3 @@ export class UserService {
     return `This action removes a #${id} user`;
   }
 }
- 
