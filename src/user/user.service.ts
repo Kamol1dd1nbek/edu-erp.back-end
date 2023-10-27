@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto, UpdateUserDto } from './dto';
 import { UserSelectType } from '../types';
-import { userSelect } from './templates';
+import { QueryParams, userSelect } from './templates';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -87,10 +87,39 @@ export class UserService {
     return wantedUser;
   }
 
-  // ------------------------- Find One User ------------------------- //
-  // async findOne2(id: number) {
-  //   return `This action returns a #${id} user`;
-  // }
+  // ------------------------- Find Users With Options ------------------------- //
+  async findUsersWithOptional(q: QueryParams) {
+    try {
+      const wantedUser = await this.prisma.user.findMany({
+        where: {
+          AND: [
+            q.id ? { id: Number(q?.id) } : {},
+            q.username
+              ? {
+                  username: {
+                    contains: q?.username,
+                  },
+                }
+              : {},
+            q.role
+              ? {
+                  role: {
+                    name: q?.role,
+                  },
+                }
+              : {},
+          ],
+        },
+        select: userSelect,
+      });
+      return wantedUser;
+    } catch (error) {
+      console.log(
+        error.message,
+        ' path: user.service.ts -> findUsersWithOptional',
+      );
+    }
+  }
 
   // ------------------------- Update User ------------------------- //
   async updateUser(id: number, updateUserDto: UpdateUserDto) {
