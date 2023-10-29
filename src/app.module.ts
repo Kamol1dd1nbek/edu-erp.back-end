@@ -13,6 +13,7 @@ import { GroupModule } from './group/group.module';
 import { LessonModule } from './lesson/lesson.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { JwtModule } from '@nestjs/jwt';
     GroupModule,
     LessonModule,
     AuthModule,
+    AdminModule,
   ],
   controllers: [],
   providers: [],

@@ -1,4 +1,4 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class QueryParams {
   @IsOptional()
@@ -12,4 +12,10 @@ export class QueryParams {
   @IsOptional()
   @IsString()
   role: string;
+
+  @IsOptional()
+  page: string;
+
+  @IsOptional()
+  limit: string;
 }

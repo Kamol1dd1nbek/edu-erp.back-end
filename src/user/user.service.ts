@@ -90,9 +90,10 @@ export class UserService {
   // ------------------------- Find Users With Options ------------------------- //
   async findUsersWithOptional(q: QueryParams) {
     try {
-      const wantedUser = await this.prisma.user.findMany({
+      const wantedUsers = await this.prisma.user.findMany({
         where: {
-          AND: [
+          OR: [
+            //or AND :)
             q.id ? { id: Number(q?.id) } : {},
             q.username
               ? {
@@ -111,8 +112,18 @@ export class UserService {
           ],
         },
         select: userSelect,
+        take: Number(q?.limit) || 10,
+        skip: Number((+q?.page - 1) * +(q?.limit || 10)) || 1,
       });
-      return wantedUser;
+      const count = await this.prisma.user.count({
+        where: {
+          role: {
+            name: q?.role,
+          },
+        },
+      });
+
+      return { count, users: wantedUsers };
     } catch (error) {
       console.log(
         error.message,

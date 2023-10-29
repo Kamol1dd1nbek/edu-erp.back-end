@@ -29,10 +29,10 @@ export class UserController {
   findAllUsers() {
     return this.userService.findAllUsers();
   }
+  
   @ApiOperation({ summary: '| Get one user' })
   @Get('optional')
   findUsersWithOptional(@Query() query: QueryParams) {
-    // return query
     return this.userService.findUsersWithOptional(query);
   }
 
