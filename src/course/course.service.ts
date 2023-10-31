@@ -2,6 +2,7 @@ import { Injectable, HttpStatus, HttpException } from '@nestjs/common';
 import { CreateCourseDto, UpdateCourseDto } from './dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { Course } from '@prisma/client';
+import { QueryParams } from '../user/templates';
 
 @Injectable()
 export class CourseService {
@@ -30,10 +31,41 @@ export class CourseService {
   }
 
   // ------------------------- Find All Courses ------------------------- //
-  async findAllCourses(): Promise<Course[]> {
+  async getAllCoursesWithOptional(q: QueryParams) {
     try {
-      const allCourses = await this.prisma.course.findMany({});
-      return allCourses;
+      const wantedCourses = await this.prisma.course.findMany({
+        where: {
+          OR: [
+            q.id ? { id: Number(q.id) } : {},
+            q.name ? { name: { contains: q.name } } : {},
+          ],
+        },
+        orderBy: {
+          id: 'asc',
+        },
+        take: Number(q?.limit) || 6,
+        skip: Number((+q?.page - 1) * +(q?.limit || 6)) || 0,
+      });
+      console.log(q);
+      const count = await this.prisma.course.count({});
+      return { count, courses: wantedCourses };
+    } catch (error) {
+      console.log(error.message, 'path: course.service.ts -> findAllCourses');
+    }
+  }
+
+  // ------------------------- Find All Courses -------------------------//
+  async getAllCourses(q: QueryParams) {
+    try {
+      const wantedCourses = await this.prisma.course.findMany({
+        orderBy: {
+          id: 'asc',
+        },
+        take: Number(q?.limit) || 6,
+        skip: Number((+q?.page - 1) * +(q?.limit || 6)) || 0,
+      });
+      const count = await this.prisma.course.count({});
+      return { count, courses: wantedCourses };
     } catch (error) {
       console.log(error.message, 'path: course.service.ts -> findAllCourses');
     }

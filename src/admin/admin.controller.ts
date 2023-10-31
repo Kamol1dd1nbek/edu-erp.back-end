@@ -3,18 +3,19 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   Query,
+  Put,
 } from '@nestjs/common';
 import { AdminService } from './admin.service';
-import { CreateStudentDto } from './dto/create-student.dto';
-import { UpdateAdminDto } from './dto/update-admin.dto';
 import { UserService } from '../user/user.service';
 import { QueryParams } from '../user/templates';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { CreateUserDto } from '../user/dto';
+import { CreateStudentDto } from './dto';
+import { UpdateUserDto } from '../user/dto';
+import { CourseService } from '../course/course.service';
+import { CreateCourseDto, UpdateCourseDto } from '../course/dto';
 
 @ApiTags('Admin')
 @Controller('admin')
@@ -22,9 +23,11 @@ export class AdminController {
   constructor(
     private readonly adminService: AdminService,
     private readonly userService: UserService,
+    private readonly courseService: CourseService,
   ) {}
 
-  @ApiOperation({ summary: "| Add new student" })
+  // STUDET
+  @ApiOperation({ summary: '| Add new student' })
   @Post('add-student')
   create(@Body() createStudentDto: CreateStudentDto) {
     return this.userService.createUser({ ...createStudentDto, role_id: 3 });
@@ -39,23 +42,46 @@ export class AdminController {
     });
   }
 
-  @Get()
-  findAll() {
-    return this.adminService.findAll();
+  @ApiOperation({ summary: '| Update student' })
+  @Put('update-student/:id')
+  updateStudent(
+    @Param('id') id: string,
+    @Body() updateStudentDto: UpdateUserDto,
+  ) {
+    return this.userService.updateUser(+id, updateStudentDto);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.adminService.findOne(+id);
+  @ApiOperation({ summary: '| Delete student' })
+  @Delete('delete-student/:id')
+  deleteStudent(@Param('id') id: string) {
+    return this.userService.removeUser(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAdminDto: UpdateAdminDto) {
-    return this.adminService.update(+id, updateAdminDto);
+  // COURSE
+  @ApiOperation({ summary: '| Get all courses' })
+  @Get('get-courses')
+  getAllCourses(@Query() query: QueryParams) {
+    return this.courseService.getAllCourses(query);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.adminService.remove(+id);
+  @ApiOperation({ summary: '| Add course' })
+  @Post('add-course')
+  addCourse(@Body() createCourseDto: CreateCourseDto) {
+    return this.courseService.createCourse(createCourseDto);
+  }
+
+  @ApiOperation({ summary: '| Delete course' })
+  @Delete('delete-course/:id')
+  deleteCourse(@Param('id') id: string) {
+    return this.courseService.removeCourse(+id);
+  }
+
+  @ApiOperation({ summary: '| Update course' })
+  @Put('update-course/:id')
+  updateCourse(
+    @Param('id') id: string,
+    @Body() updateCourseDto: UpdateCourseDto,
+  ) {
+    return this.courseService.updateCourse(+id, updateCourseDto);
   }
 }

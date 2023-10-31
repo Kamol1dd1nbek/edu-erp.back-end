@@ -111,9 +111,12 @@ export class UserService {
               : {},
           ],
         },
+        orderBy: {
+          id: 'asc',
+        },
         select: userSelect,
-        take: Number(q?.limit) || 10,
-        skip: Number((+q?.page - 1) * +(q?.limit || 10)) || 1,
+        take: Number(q?.limit) || 6,
+        skip: Number(((+q?.page) - 1) * + (q?.limit || 6)) || 0,
       });
       const count = await this.prisma.user.count({
         where: {
@@ -134,11 +137,31 @@ export class UserService {
 
   // ------------------------- Update User ------------------------- //
   async updateUser(id: number, updateUserDto: UpdateUserDto) {
-    // const
+    try {
+      const updatedUser = await this.prisma.user.update({
+        where: { id },
+        data: updateUserDto,
+        select: userSelect,
+      });
+      return updatedUser;
+    } catch (error) {
+      console.log(error, 'path: user.service.ts -> updateUser');
+      throw new HttpException(
+        'This phone number is used by another user',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 
   // ------------------------- Delete User ------------------------- //
   async removeUser(id: number) {
-    return `This action removes a #${id} user`;
+    try {
+      const deletedUser = await this.prisma.user.delete({
+        where: { id },
+      });
+      return deletedUser;
+    } catch (error) {
+      throw new HttpException('User deletion failed', HttpStatus.BAD_REQUEST);
+    }
   }
 }

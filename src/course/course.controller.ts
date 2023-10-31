@@ -6,10 +6,12 @@ import {
   Put,
   Param,
   Delete,
+  Query
 } from '@nestjs/common';
 import { CourseService } from './course.service';
 import { CreateCourseDto, UpdateCourseDto } from './dto';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { QueryParams } from '../user/templates';
 
 @ApiTags('Courses')
 @Controller('course')
@@ -24,8 +26,8 @@ export class CourseController {
 
   @ApiOperation({ summary: '| Get all courses' })
   @Get()
-  findAllCourses() {
-    return this.courseService.findAllCourses();
+  getAllCourses(@Query() query: QueryParams) {
+    return this.courseService.getAllCourses(query);
   }
 
   @ApiOperation({ summary: '| Get one course' })

@@ -18,4 +18,8 @@ export class QueryParams {
 
   @IsOptional()
   limit: string;
+
+  @IsOptional()
+  @IsString()
+  name: string;
 }
